@@ -7,10 +7,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Text.RegularExpressions;
 using File = System.IO.File;
 using Excel = Microsoft.Office.Interop.Excel;
-using System.Runtime.InteropServices;
 using AutoEllipsis;
 
 namespace WindowsFormsApplication1
@@ -18,14 +16,12 @@ namespace WindowsFormsApplication1
     public partial class Form1 : Form
     {
 
-        [DllImport("shlwapi.dll", CharSet = CharSet.Auto)]
-        static extern bool PathCompactPathEx([Out] StringBuilder pszOut, string szPath, int cchMax, int dwFlags);
-
         private Excel.Application ExcelObj = null;
         private String billingFileName = "";
         private String responseFileName = "";
         private const int RESPONSE_ROW_OFFSET = 15;
         EllipsisFormat fmt = EllipsisFormat.None;
+        BackgroundWorker m_oWorker;
 
         public Form1()
         {
@@ -33,6 +29,17 @@ namespace WindowsFormsApplication1
             ExcelObj = new Excel.Application();
             fmt |= EllipsisFormat.Start;
             fmt |= EllipsisFormat.Path;
+            // Create a background worker thread that ReportsProgress &
+            // SupportsCancellation
+            // Hook up the appropriate events.
+            /*m_oWorker.DoWork += new DoWorkEventHandler(ExcelCopier.m_oWorker_DoWork);
+            m_oWorker.ProgressChanged += new ProgressChangedEventHandler
+                    (m_oWorker_ProgressChanged);
+            m_oWorker.RunWorkerCompleted += new RunWorkerCompletedEventHandler
+                    (m_oWorker_RunWorkerCompleted);
+            m_oWorker.WorkerReportsProgress = true;
+            m_oWorker.WorkerSupportsCancellation = true;
+        */
         }
 
         private void btnGo_Click(object sender, EventArgs e)
@@ -88,87 +95,18 @@ namespace WindowsFormsApplication1
                 return;
             }
 
-            Excel.Worksheet billingWs = billingWb.Worksheets[1];
-            Excel.Worksheet responseWs = responseWb.Worksheets[1];
+            ExcelCopier copier = new ExcelCopier(this);
+            copier.progressBarClaims = this.progressBarClaims;
+            copier.textBoxClaimNum = this.textBoxClaimNum;
 
-            Excel.Range billingUsedRange = billingWs.UsedRange;
-
-            int totalRows = billingUsedRange.Rows.Count;
-
-            foreach (Excel.Range billingRow in billingUsedRange.Rows) {
-                // skip first row headers
-                if (billingRow.Row == 1)
-                    continue;
-
-                Decimal progress = (Decimal)billingRow.Row / (Decimal)totalRows;
-                progressBarClaims.Value = (int)Math.Round(progress * 100, 0);
-
-                Excel.Range cell = (Excel.Range)billingRow.Columns["A"];
-                textBoxClaimNum.Text = cell.Value2.ToString();
-
-                // Get the responseRow - the row where we'll be copying TO
-                int responseRowIdx = billingRow.Row + RESPONSE_ROW_OFFSET;
-                Excel.Range responseRow = null;
-                if ((Excel.Range)responseWs.Rows[responseRowIdx] == null)
-                {
-                    responseRow = (Excel.Range)responseWs.Rows[responseRowIdx];
-                    responseRow.Insert();
-                }
-                else
-                {
-                    responseRow = (Excel.Range)responseWs.Rows[responseRowIdx];
-                }
-
-                copyColumns(billingRow, responseRow);
-
-            }
+            copier.doCopy(billingWb, responseWb);
 
             responseWb.Save();
             responseWb.Close();
             billingWb.Close();
-
+           
             lblClaimNum.Text = "";
             System.Diagnostics.Debug.WriteLine("done!");
-        }
-
-        private void copyColumns(Excel.Range billingRow, Excel.Range responseRow)
-        {
-            this.copy(billingRow, "A", responseRow, "A");
-            this.copy(billingRow, "I", responseRow, "D");
-            this.copy(billingRow, "J", responseRow, "E");
-            this.copy(billingRow, "M", responseRow, "H");
-            this.copy(billingRow, "M", responseRow, "I");
-            this.copy(billingRow, "O", responseRow, "J");
-            this.copy(billingRow, "O", responseRow, "K");
-            this.copy(billingRow, "Q", responseRow, "L");
-            this.copy(billingRow, "Q", responseRow, "M");
-            this.copy(billingRow, "S", responseRow, "N");
-            this.copy(billingRow, "S", responseRow, "O");
-            this.copy(billingRow, "AH", responseRow, "AD");
-            this.copy(billingRow, "F", responseRow, "AE");
-            this.copy(billingRow, "AJ", responseRow, "AK");
-            this.copy(billingRow, "AR", responseRow, "AL");
-            this.copy(billingRow, "AZ", responseRow, "AM");
-            this.copy(billingRow, "BH", responseRow, "AN");
-            this.copy(billingRow, "BP", responseRow, "AO");
-            this.copy(billingRow, "BX", responseRow, "AP");
-            this.copy(billingRow, "CF", responseRow, "AQ");
-            this.copy(billingRow, "CX", responseRow, "AT");
-            this.copy(billingRow, "X", responseRow, "AU");
-        }
-
-        private void copy(Excel.Range sourceRow, string sourceColumn, Excel.Range targetRow, string targetColumn)
-        {
-            Excel.Range cell = (Excel.Range)sourceRow.Columns[sourceColumn].Cells;
-            if (cell.Value2 != null)
-            {
-                targetRow.Columns[targetColumn].Cells.Value2 = sourceRow.Columns[sourceColumn].Cells.Value2;
-            }
-        }
-
-        private void openFileDialog1_FileOk(object sender, CancelEventArgs e)
-        {
-
         }
 
         private void buttonPopBillingFileDialog_Click(object sender, EventArgs e)
@@ -207,28 +145,32 @@ namespace WindowsFormsApplication1
             Application.Exit();
         }
 
-
-        private void bw_DoWork(object sender, DoWorkEventArgs e)
+        private void btnStartAsyncOperation_Click(object sender, EventArgs e)
         {
-            BackgroundWorker worker = sender as BackgroundWorker;
+            //Change the status of the buttons on the UI accordingly
+            //The start button is disabled as soon as the background operation is started
+            //The Cancel button is enabled so that the user can stop the operation 
+            //at any point of time during the execution
+            btnGo.Enabled = false;
+            btnCancel.Enabled = true;
 
-            for (int i = 1; (i <= 10); i++)
-            {
-                if ((worker.CancellationPending == true))
-                {
-                    e.Cancel = true;
-                    break;
-                }
-                else
-                {
-                    // Perform a time consuming operation and report progress.
-                    System.Threading.Thread.Sleep(500);
-                    worker.ReportProgress((i * 10));
-                }
-            }
+            // Kickoff the worker thread to begin it's DoWork function.
+            m_oWorker.RunWorkerAsync();
         }
 
 
+        private void btnCancel_Click(object sender, EventArgs e)
+        {
+
+            if (m_oWorker.IsBusy)
+            {
+
+                // Notify the worker thread that a cancel has been requested.
+                // The cancel will not actually happen until the thread in the
+                // DoWork checks the m_oWorker.CancellationPending flag. 
+                m_oWorker.CancelAsync();
+            }
+        }
 
     }
 }

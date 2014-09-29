@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.buttonGo = new System.Windows.Forms.Button();
+            this.btnGo = new System.Windows.Forms.Button();
             this.textBoxClaimNum = new System.Windows.Forms.TextBox();
             this.lblClaimNum = new System.Windows.Forms.Label();
             this.progressBarClaims = new System.Windows.Forms.ProgressBar();
@@ -43,18 +43,19 @@
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.lblBillingFile = new System.Windows.Forms.Label();
             this.lblResponseFile = new System.Windows.Forms.Label();
+            this.btnCancel = new System.Windows.Forms.Button();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
-            // buttonGo
+            // btnGo
             // 
-            this.buttonGo.Location = new System.Drawing.Point(390, 99);
-            this.buttonGo.Name = "buttonGo";
-            this.buttonGo.Size = new System.Drawing.Size(75, 23);
-            this.buttonGo.TabIndex = 0;
-            this.buttonGo.Text = "Go";
-            this.buttonGo.UseVisualStyleBackColor = true;
-            this.buttonGo.Click += new System.EventHandler(this.btnGo_Click);
+            this.btnGo.Location = new System.Drawing.Point(390, 99);
+            this.btnGo.Name = "btnGo";
+            this.btnGo.Size = new System.Drawing.Size(75, 23);
+            this.btnGo.TabIndex = 0;
+            this.btnGo.Text = "Begin";
+            this.btnGo.UseVisualStyleBackColor = true;
+            this.btnGo.Click += new System.EventHandler(this.btnGo_Click);
             // 
             // textBoxClaimNum
             // 
@@ -83,7 +84,6 @@
             // openFileDialogBilling
             // 
             this.openFileDialogBilling.Filter = "Excel 1997-2003|*.xls|All files|*.*";
-            this.openFileDialogBilling.FileOk += new System.ComponentModel.CancelEventHandler(this.openFileDialog1_FileOk);
             // 
             // openFileDialogResponse
             // 
@@ -111,23 +111,21 @@
             // 
             // textBoxBillingFileName
             // 
+            this.textBoxBillingFileName.AutoEllipsis = ((AutoEllipsis.EllipsisFormat)((AutoEllipsis.EllipsisFormat.Start | AutoEllipsis.EllipsisFormat.Path)));
             this.textBoxBillingFileName.Location = new System.Drawing.Point(138, 44);
             this.textBoxBillingFileName.Name = "textBoxBillingFileName";
             this.textBoxBillingFileName.Size = new System.Drawing.Size(289, 20);
             this.textBoxBillingFileName.TabIndex = 6;
             this.textBoxBillingFileName.MouseClick += new System.Windows.Forms.MouseEventHandler(this.textBoxBillingFileName_MouseClick);
-            this.textBoxBillingFileName.AutoEllipsis = ((AutoEllipsis.EllipsisFormat)((AutoEllipsis.EllipsisFormat.Start | AutoEllipsis.EllipsisFormat.Path)));
-            
             // 
             // textBoxResponseFileName
             // 
+            this.textBoxResponseFileName.AutoEllipsis = ((AutoEllipsis.EllipsisFormat)((AutoEllipsis.EllipsisFormat.Start | AutoEllipsis.EllipsisFormat.Path)));
             this.textBoxResponseFileName.Location = new System.Drawing.Point(138, 73);
             this.textBoxResponseFileName.Name = "textBoxResponseFileName";
             this.textBoxResponseFileName.Size = new System.Drawing.Size(289, 20);
             this.textBoxResponseFileName.TabIndex = 7;
             this.textBoxResponseFileName.MouseClick += new System.Windows.Forms.MouseEventHandler(this.textBoxResponseFileName_MouseClick);
-            this.textBoxResponseFileName.AutoEllipsis = ((AutoEllipsis.EllipsisFormat)((AutoEllipsis.EllipsisFormat.Start | AutoEllipsis.EllipsisFormat.Path)));
-
             // 
             // menuStrip1
             // 
@@ -172,11 +170,23 @@
             this.lblResponseFile.TabIndex = 10;
             this.lblResponseFile.Text = "Response file";
             // 
+            // btnCancel
+            // 
+            this.btnCancel.Enabled = false;
+            this.btnCancel.Location = new System.Drawing.Point(390, 157);
+            this.btnCancel.Name = "btnCancel";
+            this.btnCancel.Size = new System.Drawing.Size(75, 23);
+            this.btnCancel.TabIndex = 11;
+            this.btnCancel.Text = "Cancel";
+            this.btnCancel.UseVisualStyleBackColor = true;
+            this.btnCancel.Click += new System.EventHandler(this.btnCancel_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(500, 312);
+            this.Controls.Add(this.btnCancel);
             this.Controls.Add(this.lblResponseFile);
             this.Controls.Add(this.lblBillingFile);
             this.Controls.Add(this.textBoxResponseFileName);
@@ -186,7 +196,7 @@
             this.Controls.Add(this.progressBarClaims);
             this.Controls.Add(this.lblClaimNum);
             this.Controls.Add(this.textBoxClaimNum);
-            this.Controls.Add(this.buttonGo);
+            this.Controls.Add(this.btnGo);
             this.Controls.Add(this.menuStrip1);
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "Form1";
@@ -200,7 +210,7 @@
 
         #endregion
 
-        private System.Windows.Forms.Button buttonGo;
+        private System.Windows.Forms.Button btnGo;
         private System.Windows.Forms.TextBox textBoxClaimNum;
         private System.Windows.Forms.Label lblClaimNum;
         private System.Windows.Forms.ProgressBar progressBarClaims;
@@ -215,6 +225,7 @@
         private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
         private System.Windows.Forms.Label lblBillingFile;
         private System.Windows.Forms.Label lblResponseFile;
+        private System.Windows.Forms.Button btnCancel;
     }
 }
 
