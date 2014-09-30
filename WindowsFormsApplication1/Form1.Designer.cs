@@ -17,7 +17,9 @@
             {
                 components.Dispose();
             }
-            copier.Dispose();
+            if (copier != null) {
+                copier.Dispose();
+            }
             base.Dispose(disposing);
         }
 
@@ -34,17 +36,18 @@
             this.lblClaimNum = new System.Windows.Forms.Label();
             this.progressBarClaims = new System.Windows.Forms.ProgressBar();
             this.openFileDialogBilling = new System.Windows.Forms.OpenFileDialog();
-            this.openFileDialogResponse = new System.Windows.Forms.OpenFileDialog();
+            this.openFileDialogResponseTemplate = new System.Windows.Forms.OpenFileDialog();
             this.buttonPopBillingFileDialog = new System.Windows.Forms.Button();
-            this.buttonPopResponseFileDialog = new System.Windows.Forms.Button();
+            this.buttonPopResponseTemplateFileDialog = new System.Windows.Forms.Button();
             this.textBoxBillingFileName = new AutoEllipsis.TextBoxEllipsis();
-            this.textBoxResponseFileName = new AutoEllipsis.TextBoxEllipsis();
+            this.textBoxResponseTemplateFileName = new AutoEllipsis.TextBoxEllipsis();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.lblBillingFile = new System.Windows.Forms.Label();
-            this.lblResponseFile = new System.Windows.Forms.Label();
+            this.lblResponseTemplateFile = new System.Windows.Forms.Label();
             this.btnCancel = new System.Windows.Forms.Button();
+            this.saveFileDialogResponseFile = new System.Windows.Forms.SaveFileDialog();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -86,9 +89,9 @@
             // 
             this.openFileDialogBilling.Filter = "Excel 1997-2003|*.xls|All files|*.*";
             // 
-            // openFileDialogResponse
+            // openFileDialogResponseTemplate
             // 
-            this.openFileDialogResponse.Filter = "Excel 1997-2003|*.xls|All files|*.*";
+            this.openFileDialogResponseTemplate.Filter = "Excel 1997-2003|*.xls|All files|*.*";
             // 
             // buttonPopBillingFileDialog
             // 
@@ -100,15 +103,15 @@
             this.buttonPopBillingFileDialog.UseVisualStyleBackColor = true;
             this.buttonPopBillingFileDialog.Click += new System.EventHandler(this.buttonPopBillingFileDialog_Click);
             // 
-            // buttonPopResponseFileDialog
+            // buttonPopResponseTemplateFileDialog
             // 
-            this.buttonPopResponseFileDialog.Location = new System.Drawing.Point(434, 71);
-            this.buttonPopResponseFileDialog.Name = "buttonPopResponseFileDialog";
-            this.buttonPopResponseFileDialog.Size = new System.Drawing.Size(31, 23);
-            this.buttonPopResponseFileDialog.TabIndex = 5;
-            this.buttonPopResponseFileDialog.Text = "...";
-            this.buttonPopResponseFileDialog.UseVisualStyleBackColor = true;
-            this.buttonPopResponseFileDialog.Click += new System.EventHandler(this.buttonPopResponseFileDialog_Click);
+            this.buttonPopResponseTemplateFileDialog.Location = new System.Drawing.Point(434, 71);
+            this.buttonPopResponseTemplateFileDialog.Name = "buttonPopResponseTemplateFileDialog";
+            this.buttonPopResponseTemplateFileDialog.Size = new System.Drawing.Size(31, 23);
+            this.buttonPopResponseTemplateFileDialog.TabIndex = 5;
+            this.buttonPopResponseTemplateFileDialog.Text = "...";
+            this.buttonPopResponseTemplateFileDialog.UseVisualStyleBackColor = true;
+            this.buttonPopResponseTemplateFileDialog.Click += new System.EventHandler(this.buttonPopResponseFileDialog_Click);
             // 
             // textBoxBillingFileName
             // 
@@ -120,15 +123,15 @@
             this.textBoxBillingFileName.MouseClick += new System.Windows.Forms.MouseEventHandler(this.textBoxBillingFileName_MouseClick);
             this.textBoxBillingFileName.TextChanged += new System.EventHandler(this.textBoxBillingFileName_TextChanged);
             // 
-            // textBoxResponseFileName
+            // textBoxResponseTemplateFileName
             // 
-            this.textBoxResponseFileName.AutoEllipsis = ((AutoEllipsis.EllipsisFormat)((AutoEllipsis.EllipsisFormat.Start | AutoEllipsis.EllipsisFormat.Path)));
-            this.textBoxResponseFileName.Location = new System.Drawing.Point(138, 73);
-            this.textBoxResponseFileName.Name = "textBoxResponseFileName";
-            this.textBoxResponseFileName.Size = new System.Drawing.Size(289, 20);
-            this.textBoxResponseFileName.TabIndex = 7;
-            this.textBoxResponseFileName.MouseClick += new System.Windows.Forms.MouseEventHandler(this.textBoxResponseFileName_MouseClick);
-            this.textBoxResponseFileName.TextChanged += new System.EventHandler(this.textBoxResponseFileName_TextChanged);
+            this.textBoxResponseTemplateFileName.AutoEllipsis = ((AutoEllipsis.EllipsisFormat)((AutoEllipsis.EllipsisFormat.Start | AutoEllipsis.EllipsisFormat.Path)));
+            this.textBoxResponseTemplateFileName.Location = new System.Drawing.Point(138, 73);
+            this.textBoxResponseTemplateFileName.Name = "textBoxResponseTemplateFileName";
+            this.textBoxResponseTemplateFileName.Size = new System.Drawing.Size(289, 20);
+            this.textBoxResponseTemplateFileName.TabIndex = 7;
+            this.textBoxResponseTemplateFileName.MouseClick += new System.Windows.Forms.MouseEventHandler(this.textBoxResponseFileName_MouseClick);
+            this.textBoxResponseTemplateFileName.TextChanged += new System.EventHandler(this.textBoxResponseFileName_TextChanged);
             // 
             // menuStrip1
             // 
@@ -164,14 +167,14 @@
             this.lblBillingFile.TabIndex = 9;
             this.lblBillingFile.Text = "Billing file";
             // 
-            // lblResponseFile
+            // lblResponseTemplateFile
             // 
-            this.lblResponseFile.AutoSize = true;
-            this.lblResponseFile.Location = new System.Drawing.Point(37, 76);
-            this.lblResponseFile.Name = "lblResponseFile";
-            this.lblResponseFile.Size = new System.Drawing.Size(71, 13);
-            this.lblResponseFile.TabIndex = 10;
-            this.lblResponseFile.Text = "Response file";
+            this.lblResponseTemplateFile.AutoSize = true;
+            this.lblResponseTemplateFile.Location = new System.Drawing.Point(37, 76);
+            this.lblResponseTemplateFile.Name = "lblResponseTemplateFile";
+            this.lblResponseTemplateFile.Size = new System.Drawing.Size(98, 13);
+            this.lblResponseTemplateFile.TabIndex = 10;
+            this.lblResponseTemplateFile.Text = "Response template";
             // 
             // btnCancel
             // 
@@ -184,17 +187,21 @@
             this.btnCancel.UseVisualStyleBackColor = true;
             this.btnCancel.Click += new System.EventHandler(this.btnCancel_Click);
             // 
+            // saveFileDialogResponseFile
+            // 
+            this.saveFileDialogResponseFile.Filter = "Excel 1997-2003|*.xls|All files|*.*";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(500, 312);
             this.Controls.Add(this.btnCancel);
-            this.Controls.Add(this.lblResponseFile);
+            this.Controls.Add(this.lblResponseTemplateFile);
             this.Controls.Add(this.lblBillingFile);
-            this.Controls.Add(this.textBoxResponseFileName);
+            this.Controls.Add(this.textBoxResponseTemplateFileName);
             this.Controls.Add(this.textBoxBillingFileName);
-            this.Controls.Add(this.buttonPopResponseFileDialog);
+            this.Controls.Add(this.buttonPopResponseTemplateFileDialog);
             this.Controls.Add(this.buttonPopBillingFileDialog);
             this.Controls.Add(this.progressBarClaims);
             this.Controls.Add(this.lblClaimNum);
@@ -218,17 +225,18 @@
         private System.Windows.Forms.Label lblClaimNum;
         private System.Windows.Forms.ProgressBar progressBarClaims;
         private System.Windows.Forms.OpenFileDialog openFileDialogBilling;
-        private System.Windows.Forms.OpenFileDialog openFileDialogResponse;
+        private System.Windows.Forms.OpenFileDialog openFileDialogResponseTemplate;
         private System.Windows.Forms.Button buttonPopBillingFileDialog;
-        private System.Windows.Forms.Button buttonPopResponseFileDialog;
+        private System.Windows.Forms.Button buttonPopResponseTemplateFileDialog;
         private AutoEllipsis.TextBoxEllipsis textBoxBillingFileName;
-        private AutoEllipsis.TextBoxEllipsis textBoxResponseFileName;
+        private AutoEllipsis.TextBoxEllipsis textBoxResponseTemplateFileName;
         private System.Windows.Forms.MenuStrip menuStrip1;
         private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
         private System.Windows.Forms.Label lblBillingFile;
-        private System.Windows.Forms.Label lblResponseFile;
+        private System.Windows.Forms.Label lblResponseTemplateFile;
         private System.Windows.Forms.Button btnCancel;
+        private System.Windows.Forms.SaveFileDialog saveFileDialogResponseFile;
     }
 }
 

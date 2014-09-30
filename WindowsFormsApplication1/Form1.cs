@@ -18,7 +18,8 @@ namespace ExcelTranscriptionMachine
 
         private Excel.Application ExcelObj = null;
         private String billingFileName = "";
-        private String responseFileName = "";
+        private String responseTemplateFileName = "";
+        private String responseSaveFileName = "";
         private const int RESPONSE_ROW_OFFSET = 15;
         EllipsisFormat fmt = EllipsisFormat.None;
         ExcelCopier copier = null;
@@ -36,38 +37,49 @@ namespace ExcelTranscriptionMachine
         {
             btnGo.Enabled = true;
             buttonPopBillingFileDialog.Enabled = true;
-            buttonPopResponseFileDialog.Enabled = true;
+            buttonPopResponseTemplateFileDialog.Enabled = true;
             textBoxBillingFileName.Enabled = true;
-            textBoxResponseFileName.Enabled = true;
+            textBoxResponseTemplateFileName.Enabled = true;
         }
         private void disableControls()
         {
             btnGo.Enabled = false;
             buttonPopBillingFileDialog.Enabled = false;
-            buttonPopResponseFileDialog.Enabled = false;
+            buttonPopResponseTemplateFileDialog.Enabled = false;
             textBoxBillingFileName.Enabled = false;
-            textBoxResponseFileName.Enabled = false;
+            textBoxResponseTemplateFileName.Enabled = false;
         }
 
         private void btnGo_Click(object sender, EventArgs e)
         {
 
-            if (billingFileName.Length == 0 || responseFileName.Length == 0)
+            if (billingFileName.Length == 0 || responseTemplateFileName.Length == 0)
             {
                 if (billingFileName.Length == 0)
                 {
                     lblBillingFile.ForeColor = Color.Red;
                 }
-                if (responseFileName.Length == 0)
+                if (responseTemplateFileName.Length == 0)
                 {
-                    lblResponseFile.ForeColor = Color.Red;
+                    lblResponseTemplateFile.ForeColor = Color.Red;
                 }
                 return;
             }
 
-            if (textBoxBillingFileName.FullText == textBoxResponseFileName.FullText)
+            if (textBoxBillingFileName.FullText == textBoxResponseTemplateFileName.FullText)
             {
                 MessageBox.Show("Billing file must be different from response file.", "Operation not possible");
+                return;
+            }
+
+          
+            DialogResult result = this.saveFileDialogResponseFile.ShowDialog();
+            if (result == DialogResult.OK)
+            {
+                this.responseSaveFileName = saveFileDialogResponseFile.FileName;
+            }
+            else
+            {
                 return;
             }
 
@@ -77,7 +89,7 @@ namespace ExcelTranscriptionMachine
             Excel.Workbook billingWb = null;
             Excel.Workbook responseWb = null;
             lblBillingFile.ForeColor = SystemColors.ControlText;
-            lblResponseFile.ForeColor = SystemColors.ControlText;
+            lblResponseTemplateFile.ForeColor = SystemColors.ControlText;
 
             try
             {
@@ -100,7 +112,7 @@ namespace ExcelTranscriptionMachine
 
             try
             {
-                responseWb = ExcelObj.Workbooks.Open(responseFileName);
+                responseWb = ExcelObj.Workbooks.Open(responseTemplateFileName);
             }
             catch (System.IO.FileNotFoundException ex)
             {
@@ -128,7 +140,7 @@ namespace ExcelTranscriptionMachine
             if (copier.copySuccess) {
                 try
                 {
-                    responseWb.Save();
+                    responseWb.SaveAs(this.responseSaveFileName, responseWb.FileFormat);
                     responseWb.Close(true);
                     MessageBox.Show("Excel copier job complete");
                 }
@@ -186,11 +198,11 @@ namespace ExcelTranscriptionMachine
 
         private void buttonPopResponseFileDialog_Click(object sender, EventArgs e)
         {
-            lblResponseFile.ForeColor = SystemColors.ControlText;
-            DialogResult result = openFileDialogResponse.ShowDialog();
+            lblResponseTemplateFile.ForeColor = SystemColors.ControlText;
+            DialogResult result = openFileDialogResponseTemplate.ShowDialog();
             if (result == DialogResult.OK)
             {
-                textBoxResponseFileName.Text = this.responseFileName = openFileDialogResponse.FileName;
+                textBoxResponseTemplateFileName.Text = this.responseTemplateFileName = openFileDialogResponseTemplate.FileName;
             }
         }
 
@@ -216,7 +228,7 @@ namespace ExcelTranscriptionMachine
 
         private void textBoxResponseFileName_TextChanged(object sender, EventArgs e)
         {
-            this.responseFileName = openFileDialogResponse.FileName = textBoxResponseFileName.FullText;
+            this.responseTemplateFileName = openFileDialogResponseTemplate.FileName = textBoxResponseTemplateFileName.FullText;
         }
     }
 }
