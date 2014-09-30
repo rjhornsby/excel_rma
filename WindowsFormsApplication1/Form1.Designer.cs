@@ -1,4 +1,4 @@
-﻿namespace WindowsFormsApplication1
+﻿namespace ExcelTranscriptionMachine
 {
     partial class Form1
     {
@@ -117,6 +117,7 @@
             this.textBoxBillingFileName.Size = new System.Drawing.Size(289, 20);
             this.textBoxBillingFileName.TabIndex = 6;
             this.textBoxBillingFileName.MouseClick += new System.Windows.Forms.MouseEventHandler(this.textBoxBillingFileName_MouseClick);
+            this.textBoxBillingFileName.TextChanged += new System.EventHandler(this.textBoxBillingFileName_TextChanged);
             // 
             // textBoxResponseFileName
             // 
@@ -126,6 +127,7 @@
             this.textBoxResponseFileName.Size = new System.Drawing.Size(289, 20);
             this.textBoxResponseFileName.TabIndex = 7;
             this.textBoxResponseFileName.MouseClick += new System.Windows.Forms.MouseEventHandler(this.textBoxResponseFileName_MouseClick);
+            this.textBoxResponseFileName.TextChanged += new System.EventHandler(this.textBoxResponseFileName_TextChanged);
             // 
             // menuStrip1
             // 
@@ -200,7 +202,7 @@
             this.Controls.Add(this.menuStrip1);
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "Form1";
-            this.Text = "RMA Transcription Machine";
+            this.Text = "Excel Transcription Machine";
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
             this.ResumeLayout(false);

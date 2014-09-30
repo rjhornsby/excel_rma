@@ -11,7 +11,7 @@ using File = System.IO.File;
 using Excel = Microsoft.Office.Interop.Excel;
 using AutoEllipsis;
 
-namespace WindowsFormsApplication1
+namespace ExcelTranscriptionMachine
 {
     public partial class Form1 : Form
     {
@@ -21,7 +21,7 @@ namespace WindowsFormsApplication1
         private String responseFileName = "";
         private const int RESPONSE_ROW_OFFSET = 15;
         EllipsisFormat fmt = EllipsisFormat.None;
-        BackgroundWorker m_oWorker;
+        ExcelCopier copier = null;
 
         public Form1()
         {
@@ -29,25 +29,28 @@ namespace WindowsFormsApplication1
             ExcelObj = new Excel.Application();
             fmt |= EllipsisFormat.Start;
             fmt |= EllipsisFormat.Path;
-            // Create a background worker thread that ReportsProgress &
-            // SupportsCancellation
-            // Hook up the appropriate events.
-            /*m_oWorker.DoWork += new DoWorkEventHandler(ExcelCopier.m_oWorker_DoWork);
-            m_oWorker.ProgressChanged += new ProgressChangedEventHandler
-                    (m_oWorker_ProgressChanged);
-            m_oWorker.RunWorkerCompleted += new RunWorkerCompletedEventHandler
-                    (m_oWorker_RunWorkerCompleted);
-            m_oWorker.WorkerReportsProgress = true;
-            m_oWorker.WorkerSupportsCancellation = true;
-        */
+
+        }
+
+        private void enableControls()
+        {
+            btnGo.Enabled = true;
+            buttonPopBillingFileDialog.Enabled = true;
+            buttonPopResponseFileDialog.Enabled = true;
+            textBoxBillingFileName.Enabled = true;
+            textBoxResponseFileName.Enabled = true;
+        }
+        private void disableControls()
+        {
+            btnGo.Enabled = false;
+            buttonPopBillingFileDialog.Enabled = false;
+            buttonPopResponseFileDialog.Enabled = false;
+            textBoxBillingFileName.Enabled = false;
+            textBoxResponseFileName.Enabled = false;
         }
 
         private void btnGo_Click(object sender, EventArgs e)
         {
-            Excel.Workbook billingWb = null;
-            Excel.Workbook responseWb = null;
-            lblBillingFile.ForeColor = SystemColors.ControlText;
-            lblResponseFile.ForeColor = SystemColors.ControlText;
 
             if (billingFileName.Length == 0 || responseFileName.Length == 0)
             {
@@ -62,6 +65,20 @@ namespace WindowsFormsApplication1
                 return;
             }
 
+            if (textBoxBillingFileName.FullText == textBoxResponseFileName.FullText)
+            {
+                MessageBox.Show("Billing file must be different from response file.", "Operation not possible");
+                return;
+            }
+
+            this.disableControls();
+            textBoxClaimNum.Text = "Copier warming up, please wait...";
+
+            Excel.Workbook billingWb = null;
+            Excel.Workbook responseWb = null;
+            lblBillingFile.ForeColor = SystemColors.ControlText;
+            lblResponseFile.ForeColor = SystemColors.ControlText;
+
             try
             {
                 billingWb = ExcelObj.Workbooks.Open(billingFileName, Type.Missing, System.IO.FileAccess.Read);
@@ -69,12 +86,14 @@ namespace WindowsFormsApplication1
             catch (System.IO.FileNotFoundException ex)
             {
                 MessageBox.Show(ex.Message, "File not found", MessageBoxButtons.OK, MessageBoxIcon.Stop);
+                this.enableControls();
                 return;
             }
             catch (Exception ex)
             {
                 MessageBox.Show(
                    ex.Message, "Couldn't open file", MessageBoxButtons.OK, MessageBoxIcon.Stop);
+                this.enableControls();
                 return;
             }
 
@@ -95,18 +114,62 @@ namespace WindowsFormsApplication1
                 return;
             }
 
-            ExcelCopier copier = new ExcelCopier(this);
+            copier = new ExcelCopier(this);
             copier.progressBarClaims = this.progressBarClaims;
             copier.textBoxClaimNum = this.textBoxClaimNum;
 
-            copier.doCopy(billingWb, responseWb);
+            btnCancel.Enabled = true;
+            copier.doCopy((Excel.Worksheet)billingWb.Sheets.get_Item(1), (Excel.Worksheet)responseWb.Sheets.get_Item(1));
 
-            responseWb.Save();
-            responseWb.Close();
-            billingWb.Close();
-           
-            lblClaimNum.Text = "";
-            System.Diagnostics.Debug.WriteLine("done!");
+            while (copier.isBusy)
+            {
+                Application.DoEvents();
+            }
+            if (copier.copySuccess) {
+                try
+                {
+                    responseWb.Save();
+                    responseWb.Close(true);
+                    MessageBox.Show("Excel copier job complete");
+                }
+                catch (System.IO.IOException ex)
+                {
+                    MessageBox.Show(ex.Message, "Unable to save response file");
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message, "Unable to save response file");
+                }
+
+            }
+            else
+            {
+                responseWb.Close(false);
+                MessageBox.Show("Excel copier job canceled.");
+                if (copier.error != null)
+                {
+                    MessageBox.Show(copier.error);
+                }
+                Random random = new Random();
+                if (random.Next(100) >= 95)
+                {
+                    textBoxClaimNum.Text = "PC LOAD LETTER";
+                }
+            }
+            
+            billingWb.Close(false);
+
+            enableControls();
+            btnCancel.Enabled = false;
+
+            textBoxClaimNum.Text = "";
+
+            copier = null;
+        }
+
+        private void btnCancel_Click(object sender, EventArgs e)
+        {
+            this.copier.cancel();
         }
 
         private void buttonPopBillingFileDialog_Click(object sender, EventArgs e)
@@ -145,32 +208,14 @@ namespace WindowsFormsApplication1
             Application.Exit();
         }
 
-        private void btnStartAsyncOperation_Click(object sender, EventArgs e)
+        private void textBoxBillingFileName_TextChanged(object sender, EventArgs e)
         {
-            //Change the status of the buttons on the UI accordingly
-            //The start button is disabled as soon as the background operation is started
-            //The Cancel button is enabled so that the user can stop the operation 
-            //at any point of time during the execution
-            btnGo.Enabled = false;
-            btnCancel.Enabled = true;
-
-            // Kickoff the worker thread to begin it's DoWork function.
-            m_oWorker.RunWorkerAsync();
+            this.billingFileName = openFileDialogBilling.FileName = textBoxBillingFileName.FullText;
         }
 
-
-        private void btnCancel_Click(object sender, EventArgs e)
+        private void textBoxResponseFileName_TextChanged(object sender, EventArgs e)
         {
-
-            if (m_oWorker.IsBusy)
-            {
-
-                // Notify the worker thread that a cancel has been requested.
-                // The cancel will not actually happen until the thread in the
-                // DoWork checks the m_oWorker.CancellationPending flag. 
-                m_oWorker.CancelAsync();
-            }
+            this.responseFileName = openFileDialogResponse.FileName = textBoxResponseFileName.FullText;
         }
-
     }
 }
