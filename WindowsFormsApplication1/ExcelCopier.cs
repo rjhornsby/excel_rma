@@ -8,7 +8,7 @@ using Excel = Microsoft.Office.Interop.Excel;
 
 namespace ExcelTranscriptionMachine
 {
-    class ExcelCopier
+    class ExcelCopier : IDisposable
     {
         private Excel.Application ExcelObj = null;
         public System.Windows.Forms.TextBox textBoxClaimNum { get; set; }
@@ -203,6 +203,9 @@ namespace ExcelTranscriptionMachine
             }
         }
 
+        public void Dispose() {
+            m_oWorker.Dispose();
+        }
 
     }
 }

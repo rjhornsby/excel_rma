@@ -163,8 +163,9 @@ namespace ExcelTranscriptionMachine
             btnCancel.Enabled = false;
 
             textBoxClaimNum.Text = "";
+            progressBarClaims.Value = 0;
 
-            copier = null;
+            copier.Dispose();
         }
 
         private void btnCancel_Click(object sender, EventArgs e)

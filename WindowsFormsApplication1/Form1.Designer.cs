@@ -17,6 +17,7 @@
             {
                 components.Dispose();
             }
+            copier.Dispose();
             base.Dispose(disposing);
         }
 
