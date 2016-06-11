@@ -155,3 +155,5 @@ $RECYCLE.BIN/
 # Mac desktop service store files
 .DS_Store
 /Excel Transcription Machine.exe
+/Application Files/Excel Transcription Machine_1_0_0_5
+/setup.exe
