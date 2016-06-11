@@ -176,17 +176,17 @@ namespace ExcelTranscriptionMachine
             this.copyCell(billingRow, "Q", responseRow, "M");
             this.copyCell(billingRow, "S", responseRow, "N");
             this.copyCell(billingRow, "S", responseRow, "O");
-            this.copyCell(billingRow, "AH", responseRow, "AD");
-            this.copyCell(billingRow, "F", responseRow, "AE");
-            this.copyCell(billingRow, "AJ", responseRow, "AK");
-            this.copyCell(billingRow, "AR", responseRow, "AL");
-            this.copyCell(billingRow, "AZ", responseRow, "AM");
-            this.copyCell(billingRow, "BH", responseRow, "AN");
-            this.copyCell(billingRow, "BP", responseRow, "AO");
-            this.copyCell(billingRow, "BX", responseRow, "AP");
-            this.copyCell(billingRow, "CF", responseRow, "AQ");
-            this.copyCell(billingRow, "CX", responseRow, "AT");
-            this.copyCell(billingRow, "X", responseRow, "AU");
+            this.copyCell(billingRow, "AH", responseRow, "AE");
+            this.copyCell(billingRow, "F", responseRow, "AF");
+            this.copyCell(billingRow, "AJ", responseRow, "AL");
+            this.copyCell(billingRow, "AR", responseRow, "AM");
+            this.copyCell(billingRow, "AZ", responseRow, "AN");
+            this.copyCell(billingRow, "BH", responseRow, "AO");
+            this.copyCell(billingRow, "BP", responseRow, "AP");
+            this.copyCell(billingRow, "BX", responseRow, "AQ");
+            this.copyCell(billingRow, "CF", responseRow, "AR");
+            this.copyCell(billingRow, "CX", responseRow, "AU");
+            this.copyCell(billingRow, "X", responseRow, "AV");
         }
 
         private void copyCell(Excel.Range sourceRow, string sourceColumn, Excel.Range targetRow, string targetColumn)
